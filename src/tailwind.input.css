@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .fuente-titular {
+    font-family: 'Bodoni Moda', serif;
+  }
+
+  .fuente-cuerpo {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}

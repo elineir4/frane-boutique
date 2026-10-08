@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm run build:copy && npm run build:css",
+    "build:copy": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});['index.html','app.js','styles.css'].forEach(file=>fs.copyFileSync('src/'+file,'dist/'+file))\"",
+    "build:css": "tailwindcss -i ./src/tailwind.input.css -o ./dist/tailwind.generated.css --minify",
+    "dev": "npm run build && tailwindcss -i ./src/tailwind.input.css -o ./dist/tailwind.generated.css --minify --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

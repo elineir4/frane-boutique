@@ -280,10 +280,10 @@ dialogoBolsa.addEventListener('click', async (evento) => {
 
   if (evento.target.closest('#boton-enviar-instagram')) {
     const detallePedido = bolsa.map((articulo) =>
-      `• ${articulo.nombre} — talle ${articulo.talle}, color ${articulo.color}, cantidad ${articulo.cantidad}: ${formatearPrecio(articulo.precio * articulo.cantidad)}`
+      `🌷 ${articulo.nombre} (${articulo.talle}, ${articulo.color}) (x${articulo.cantidad}) - ${formatearPrecio(articulo.precio * articulo.cantidad)}`
     );
     const totalPedido = bolsa.reduce((subtotal, articulo) => subtotal + articulo.precio * articulo.cantidad, 0);
-    const mensaje = `Hola Frané Boutique, quiero hacer este pedido:\\n\\n${detallePedido.join('\\n')}\\n\\nTotal estimado: ${formatearPrecio(totalPedido)}`;
+    const mensaje = `🌸 Hola Frané Boutique! 🌸\nQuiero hacer este pedido:\n\n${detallePedido.join('\n')}\n\n💐 Total: ${formatearPrecio(totalPedido)}\n\nGracias! 🌼`;
     const avisoPedido = document.querySelector('#aviso-pedido-instagram');
     const estadoPedido = document.querySelector('#estado-pedido-instagram');
     document.querySelector('#texto-pedido-instagram').value = mensaje;

@@ -1,5 +1,6 @@
-// Personaliza el tema de Tailwind; estos nombres de configuración son propios del framework.
-tailwind.config = {
+
+module.exports = {
+  content: ['./src/**/*.{html,js}'],
   darkMode: 'class',
   theme: {
     extend: {
