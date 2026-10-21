@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "npm run build:copy && npm run build:css",
-    "build:copy": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});fs.mkdirSync('dist/source',{recursive:true});['index.html','app.js','catalogo.js','styles.css','login.html','login.js','admin.html','admin.js','admin.css','supabase.js'].forEach(file=>fs.copyFileSync('src/'+file,'dist/'+file));fs.copyFileSync('src/source/herofranedefinitivo.jpg','dist/source/herofranedefinitivo.jpg')\"",
+    "build:copy": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});fs.mkdirSync('dist/source',{recursive:true});['index.html','app.js','catalogo.js','styles.css','login.html','login.js','admin.html','admin.js','admin.css','supabase.js'].forEach(file=>fs.copyFileSync('src/'+file,'dist/'+file));fs.copyFileSync('src/source/herofranedefinitivo.jpg','dist/source/herofranedefinitivo.jpg');fs.copyFileSync('src/source/favicoin-Photoroom.png','dist/source/favicoin-Photoroom.png');fs.copyFileSync('src/source/favicon-48x48.png','dist/source/favicon-48x48.png')\"",
     "build:css": "tailwindcss -i ./src/tailwind.input.css -o ./dist/tailwind.generated.css --minify",
     "dev": "npm run build && tailwindcss -i ./src/tailwind.input.css -o ./dist/tailwind.generated.css --minify --watch"
   },

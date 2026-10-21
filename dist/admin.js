@@ -14,13 +14,18 @@ const tituloFormulario = document.querySelector('#titulo-formulario-producto');
 const errorFormulario = document.querySelector('#error-formulario-producto');
 const inputFotos = document.querySelector('#fotos-producto');
 const vistaFotos = document.querySelector('#vista-fotos');
+const dialogoConfirmarEliminacion = document.querySelector('#dialogo-confirmar-eliminacion');
+const nombreProductoEliminar = document.querySelector('#nombre-producto-eliminar');
+const errorEliminacionProducto = document.querySelector('#error-eliminacion-producto');
+const botonCancelarEliminacion = document.querySelector('#boton-cancelar-eliminacion');
+const botonConfirmarEliminacion = document.querySelector('#boton-confirmar-eliminacion');
+let productoPendienteEliminar = null;
 
 const campos = {
   codigo: document.querySelector('#codigo-producto'),
   nombre: document.querySelector('#nombre-producto'),
   categoria: document.querySelector('#categoria-producto'),
   grupo: document.querySelector('#grupo-producto'),
-  marca: document.querySelector('#marca-producto'),
   precio: document.querySelector('#precio-producto'),
   stock: document.querySelector('#stock-producto'),
   etiqueta: document.querySelector('#etiqueta-producto'),
@@ -45,7 +50,6 @@ function dibujarProductos() {
         <div class="min-w-0 flex-1">
           <p class="text-[0.6rem] font-semibold uppercase tracking-[0.15em] text-primary">${escaparHTML(producto.categoria)}</p>
           <h3 class="mt-1 break-words fuente-titular text-xl leading-tight">${escaparHTML(producto.nombre)}</h3>
-          ${producto.marca ? `<p class="mt-1 text-xs text-on-surface-variant">${escaparHTML(producto.marca)}</p>` : ''}
           <p class="mt-2 text-sm font-semibold">${formatearPrecio(producto.precio)}</p>
           <p class="mt-1 text-xs text-on-surface-variant">${escaparHTML(producto.etiqueta)} · ${producto.imagenes.length} ${producto.imagenes.length === 1 ? 'foto' : 'fotos'}</p>
           <p class="mt-1 text-xs font-semibold ${(producto.stock ?? 1) === 0 ? 'text-error' : 'text-secondary'}">${(producto.stock ?? 1) === 0 ? 'Agotada' : `${producto.stock ?? 1} en stock`}</p>
@@ -159,7 +163,6 @@ function abrirFormulario(producto = null) {
     campos.nombre.value = producto.nombre;
     campos.categoria.value = producto.categoria;
     campos.grupo.value = producto.grupo;
-    campos.marca.value = producto.marca ?? '';
     campos.precio.value = String(producto.precio);
     campos.stock.value = String(producto.stock ?? 1);
     campos.etiqueta.value = producto.etiqueta;
@@ -286,7 +289,6 @@ formularioProducto.addEventListener('submit', async (evento) => {
       nombre: campos.nombre.value.trim(),
       categoria: campos.categoria.value.trim(),
       grupo: campos.grupo.value,
-      marca: campos.marca.value.trim() || null,
       precio,
       stock,
       etiqueta: campos.etiqueta.value.trim(),
@@ -338,6 +340,54 @@ document.querySelector('#boton-cancelar-producto').addEventListener('click', () 
   panelFormulario.classList.add('hidden');
 });
 
+function abrirConfirmacionEliminacion(producto) {
+  productoPendienteEliminar = producto;
+  nombreProductoEliminar.textContent = producto.nombre;
+  errorEliminacionProducto.textContent = '';
+  errorEliminacionProducto.classList.add('hidden');
+  botonConfirmarEliminacion.disabled = false;
+  botonConfirmarEliminacion.innerHTML = '<span class="material-symbols-outlined text-base">delete</span> Eliminar';
+  dialogoConfirmarEliminacion.showModal();
+}
+
+botonCancelarEliminacion.addEventListener('click', () => {
+  dialogoConfirmarEliminacion.close();
+  productoPendienteEliminar = null;
+});
+
+dialogoConfirmarEliminacion.addEventListener('click', (evento) => {
+  if (evento.target === dialogoConfirmarEliminacion) {
+    dialogoConfirmarEliminacion.close();
+    productoPendienteEliminar = null;
+  }
+});
+
+botonConfirmarEliminacion.addEventListener('click', async () => {
+  const producto = productoPendienteEliminar;
+  if (!producto) return;
+
+  botonConfirmarEliminacion.disabled = true;
+  botonConfirmarEliminacion.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_top</span> Eliminando...';
+  errorEliminacionProducto.textContent = '';
+  errorEliminacionProducto.classList.add('hidden');
+
+  if (!(await eliminarProducto(producto.codigo))) {
+    errorEliminacionProducto.textContent = 'No se pudo eliminar. Inténtalo otra vez.';
+    errorEliminacionProducto.classList.remove('hidden');
+    botonConfirmarEliminacion.disabled = false;
+    botonConfirmarEliminacion.innerHTML = '<span class="material-symbols-outlined text-base">delete</span> Eliminar';
+    return;
+  }
+
+  productos = (await obtenerProductos()) ?? productos;
+  dibujarProductos();
+  dialogoConfirmarEliminacion.close();
+  productoPendienteEliminar = null;
+  mostrarEstado('Prenda eliminada del catálogo.');
+  botonConfirmarEliminacion.disabled = false;
+  botonConfirmarEliminacion.innerHTML = '<span class="material-symbols-outlined text-base">delete</span> Eliminar';
+});
+
 listaProductos.addEventListener('click', async (evento) => {
   const botonStock = evento.target.closest('[data-cambiar-stock]');
   if (botonStock) {
@@ -368,16 +418,8 @@ listaProductos.addEventListener('click', async (evento) => {
   const botonEliminar = evento.target.closest('[data-eliminar-producto]');
   if (!botonEliminar) return;
   const producto = productos.find((actual) => actual.codigo === botonEliminar.dataset.eliminarProducto);
-  if (!producto || !window.confirm(`¿Eliminar "${producto.nombre}" del catálogo?`)) return;
-
-  if (!(await eliminarProducto(producto.codigo))) {
-    mostrarEstado('No se pudo eliminar. Inténtalo otra vez.', true);
-    return;
-  }
-  productos = (await obtenerProductos()) ?? productos;
-
-  dibujarProductos();
-  mostrarEstado('Prenda eliminada del catálogo.');
+  if (!producto) return;
+  abrirConfirmacionEliminacion(producto);
 });
 
 async function iniciar() {
