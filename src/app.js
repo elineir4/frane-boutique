@@ -10,7 +10,7 @@ const pieBolsa = document.querySelector('#pie-bolsa');
 const contadorBolsa = document.querySelector('#contador-bolsa');
 // La bolsa se mantiene durante la visita mientras la persona agrega o quita artículos.
 const bolsa = [];
-const numeroWhatsApp = '5493515290303';
+const numeroWhatsApp = '56938955547';
 let prendaSeleccionada = null;
 let categoriaSeleccionada = 'todos';
 
