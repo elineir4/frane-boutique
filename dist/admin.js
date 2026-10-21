@@ -20,7 +20,9 @@ const campos = {
   nombre: document.querySelector('#nombre-producto'),
   categoria: document.querySelector('#categoria-producto'),
   grupo: document.querySelector('#grupo-producto'),
+  marca: document.querySelector('#marca-producto'),
   precio: document.querySelector('#precio-producto'),
+  stock: document.querySelector('#stock-producto'),
   etiqueta: document.querySelector('#etiqueta-producto'),
   talles: document.querySelector('#talles-producto'),
   colores: document.querySelector('#colores-producto')
@@ -43,8 +45,10 @@ function dibujarProductos() {
         <div class="min-w-0 flex-1">
           <p class="text-[0.6rem] font-semibold uppercase tracking-[0.15em] text-primary">${escaparHTML(producto.categoria)}</p>
           <h3 class="mt-1 break-words fuente-titular text-xl leading-tight">${escaparHTML(producto.nombre)}</h3>
+          ${producto.marca ? `<p class="mt-1 text-xs text-on-surface-variant">${escaparHTML(producto.marca)}</p>` : ''}
           <p class="mt-2 text-sm font-semibold">${formatearPrecio(producto.precio)}</p>
           <p class="mt-1 text-xs text-on-surface-variant">${escaparHTML(producto.etiqueta)} · ${producto.imagenes.length} ${producto.imagenes.length === 1 ? 'foto' : 'fotos'}</p>
+          <p class="mt-1 text-xs font-semibold ${(producto.stock ?? 1) === 0 ? 'text-error' : 'text-secondary'}">${(producto.stock ?? 1) === 0 ? 'Agotada' : `${producto.stock ?? 1} en stock`}</p>
         </div>
       </div>
       <div class="flex border-t border-primary/10">
@@ -56,6 +60,10 @@ function dibujarProductos() {
           <span class="material-symbols-outlined text-base">delete</span> Eliminar
         </button>
       </div>
+      <button type="button" data-cambiar-stock="${escaparHTML(producto.codigo)}" data-stock="${producto.stock ?? 1}" class="flex min-h-11 w-full items-center justify-center gap-2 border-t border-primary/10 px-3 py-3 text-xs font-semibold ${(producto.stock ?? 1) === 0 ? 'text-secondary hover:bg-surface-container-low' : 'text-error hover:bg-red-50'}">
+        <span class="material-symbols-outlined text-base">${(producto.stock ?? 1) === 0 ? 'inventory' : 'inventory_2'}</span>
+        ${(producto.stock ?? 1) === 0 ? 'Volver a publicar con 1 unidad' : 'Marcar agotada'}
+      </button>
     </article>
   `).join('');
 }
@@ -134,6 +142,8 @@ vistaFotos.addEventListener('click', (evento) => {
 function limpiarFormulario() {
   formularioProducto.reset();
   campos.codigo.value = '';
+  establecerOpciones(campos.talles, []);
+  establecerOpciones(campos.colores, []);
   fotosActuales = [];
   fotosNuevas = [];
   dibujarFotos();
@@ -149,10 +159,12 @@ function abrirFormulario(producto = null) {
     campos.nombre.value = producto.nombre;
     campos.categoria.value = producto.categoria;
     campos.grupo.value = producto.grupo;
+    campos.marca.value = producto.marca ?? '';
     campos.precio.value = String(producto.precio);
+    campos.stock.value = String(producto.stock ?? 1);
     campos.etiqueta.value = producto.etiqueta;
-    campos.talles.value = producto.talles.join(', ');
-    campos.colores.value = producto.colores.join(', ');
+    establecerOpciones(campos.talles, producto.talles);
+    establecerOpciones(campos.colores, producto.colores);
     fotosActuales = [...producto.imagenes];
     dibujarFotos();
     tituloFormulario.textContent = 'Editar prenda';
@@ -163,8 +175,51 @@ function abrirFormulario(producto = null) {
   campos.nombre.focus({ preventScroll: true });
 }
 
-function leerLista(valor) {
-  return valor.split(',').map((elemento) => elemento.trim()).filter(Boolean);
+function agregarCampoOpcion(contenedor, valor = '') {
+  const tipo = contenedor.dataset.tipoOpcion;
+  const fila = document.createElement('div');
+  fila.className = 'flex min-w-0 items-center gap-2';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.required = true;
+  input.dataset.opcionInput = '';
+  input.placeholder = tipo === 'talle' ? 'Ej.: S' : 'Ej.: Negro';
+  input.value = valor;
+  input.setAttribute('aria-label', tipo === 'talle' ? 'Talle disponible' : 'Color disponible');
+  input.className = 'min-w-0 flex-1';
+
+  const quitar = document.createElement('button');
+  quitar.type = 'button';
+  quitar.dataset.quitarOpcion = '';
+  quitar.className = 'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-secondary transition hover:bg-red-50 hover:text-error disabled:cursor-not-allowed disabled:opacity-40';
+  quitar.setAttribute('aria-label', tipo === 'talle' ? 'Quitar talle' : 'Quitar color');
+  quitar.innerHTML = '<span class="material-symbols-outlined">close</span>';
+
+  fila.append(input, quitar);
+  contenedor.append(fila);
+  actualizarBotonesQuitar(contenedor);
+  return input;
+}
+
+function actualizarBotonesQuitar(contenedor) {
+  const botones = contenedor.querySelectorAll('[data-quitar-opcion]');
+  botones.forEach((boton) => {
+    boton.disabled = botones.length === 1;
+  });
+}
+
+function establecerOpciones(contenedor, opciones) {
+  contenedor.replaceChildren();
+  const valores = opciones.length > 0 ? opciones : [''];
+  valores.forEach((valor) => agregarCampoOpcion(contenedor, valor));
+}
+
+function leerOpciones(contenedor) {
+  return [...contenedor.querySelectorAll('[data-opcion-input]')]
+    .flatMap((input) => input.value.split(','))
+    .map((elemento) => elemento.trim())
+    .filter(Boolean);
 }
 
 function crearCodigo(nombre) {
@@ -194,11 +249,13 @@ formularioProducto.addEventListener('submit', async (evento) => {
   errorFormulario.classList.add('hidden');
 
   const precio = Number(campos.precio.value);
-  const talles = leerLista(campos.talles.value);
-  const colores = leerLista(campos.colores.value);
+  const stock = Number(campos.stock.value);
+  const talles = leerOpciones(campos.talles);
+  const colores = leerOpciones(campos.colores);
   const errores = [];
 
   if (!Number.isSafeInteger(precio) || precio < 1) errores.push('Ingresa un precio entero mayor que cero.');
+  if (!Number.isSafeInteger(stock) || stock < 0) errores.push('Ingresa una cantidad de stock entera igual o mayor que cero.');
   if (talles.length === 0) errores.push('Ingresa al menos un talle.');
   if (colores.length === 0) errores.push('Ingresa al menos un color.');
   if (fotosActuales.length + fotosNuevas.length === 0) errores.push('Agrega al menos una foto.');
@@ -229,7 +286,9 @@ formularioProducto.addEventListener('submit', async (evento) => {
       nombre: campos.nombre.value.trim(),
       categoria: campos.categoria.value.trim(),
       grupo: campos.grupo.value,
+      marca: campos.marca.value.trim() || null,
       precio,
+      stock,
       etiqueta: campos.etiqueta.value.trim(),
       talles,
       colores,
@@ -254,6 +313,22 @@ formularioProducto.addEventListener('submit', async (evento) => {
   }
 });
 
+formularioProducto.addEventListener('click', (evento) => {
+  const agregar = evento.target.closest('[data-agregar-opcion]');
+  if (agregar) {
+    const contenedor = agregar.dataset.agregarOpcion === 'talle' ? campos.talles : campos.colores;
+    agregarCampoOpcion(contenedor).focus();
+    return;
+  }
+
+  const quitar = evento.target.closest('[data-quitar-opcion]');
+  if (!quitar) return;
+  const contenedor = quitar.closest('[data-tipo-opcion]');
+  if (contenedor.querySelectorAll('[data-opcion-input]').length === 1) return;
+  quitar.parentElement.remove();
+  actualizarBotonesQuitar(contenedor);
+});
+
 document.querySelector('#boton-nuevo-producto').addEventListener('click', () => {
   abrirFormulario();
 });
@@ -264,6 +339,25 @@ document.querySelector('#boton-cancelar-producto').addEventListener('click', () 
 });
 
 listaProductos.addEventListener('click', async (evento) => {
+  const botonStock = evento.target.closest('[data-cambiar-stock]');
+  if (botonStock) {
+    const codigo = botonStock.dataset.cambiarStock;
+    const stockActual = Number(botonStock.dataset.stock);
+    const nuevoStock = stockActual > 0 ? 0 : 1;
+    botonStock.disabled = true;
+    if (!(await actualizarStockProducto(codigo, nuevoStock))) {
+      botonStock.disabled = false;
+      mostrarEstado('No se pudo actualizar la disponibilidad. Verifica la migración de la base de datos e inténtalo otra vez.', true);
+      return;
+    }
+    productos = productos.map((producto) =>
+      producto.codigo === codigo ? { ...producto, stock: nuevoStock } : producto
+    );
+    dibujarProductos();
+    mostrarEstado(nuevoStock === 0 ? 'Prenda marcada como agotada.' : 'Prenda disponible nuevamente con 1 unidad.');
+    return;
+  }
+
   const botonEditar = evento.target.closest('[data-editar-producto]');
   if (botonEditar) {
     const producto = productos.find((actual) => actual.codigo === botonEditar.dataset.editarProducto);

@@ -33,6 +33,25 @@ async function eliminarProducto(codigo) {
   return true;
 }
 
+async function actualizarStockProducto(codigo, stock) {
+  const { data, error } = await db
+    .from('productos')
+    .update({ stock })
+    .eq('codigo', codigo)
+    .select('codigo')
+    .maybeSingle();
+
+  if (error) {
+    console.error('No se pudo actualizar el stock del producto.', error);
+    return false;
+  }
+  if (!data) {
+    console.error('No se encontró el producto para actualizar su stock.', codigo);
+    return false;
+  }
+  return true;
+}
+
 // Utilidades compartidas por la tienda y el panel.
 
 function escaparHTML(valor) {

@@ -34,3 +34,47 @@
   border-color: #795548;
   box-shadow: 0 0 0 3px rgba(121, 85, 72, 0.12);
 }
+@media (max-width: 639px) {
+  .admin-sidebar {
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  .admin-sidebar > p {
+    margin: 0.5rem 0 0;
+  }
+  .admin-nav {
+    margin-right: -1rem;
+    padding-right: 1rem;
+    scrollbar-width: none;
+  }
+  .admin-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .admin-sidebar-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    padding-top: 0.75rem;
+  }
+  .admin-sidebar-actions a {
+    flex: 1;
+    justify-content: center;
+    padding: 0.65rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  #resumen header h1 {
+    font-size: clamp(2rem, 8vw, 2.75rem);
+    line-height: 1.05;
+  }
+  #productos {
+    padding: 1rem;
+  }
+  #boton-nuevo-producto {
+    min-height: 2.75rem;
+  }
+  .admin-campo input,
+  .admin-campo select,
+  .admin-campo textarea {
+    font-size: 1rem;
+  }
+}

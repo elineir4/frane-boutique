@@ -34,6 +34,15 @@ function normalizarCategoriaPrenda(valor) {
   if (palabras.some((palabra) => ['pantalon', 'pantalones'].includes(palabra))) {
     return 'pantalones';
   }
+  if (palabras.some((palabra) => ['vestido', 'vestidos'].includes(palabra))) {
+    return 'vestidos';
+  }
+  if (palabras.some((palabra) => ['falda', 'faldas'].includes(palabra))) {
+    return 'faldas';
+  }
+  if (palabras.some((palabra) => ['sueter', 'sueteres', 'sweater', 'sweaters'].includes(palabra))) {
+    return 'sueteres';
+  }
   return null;
 }
 
@@ -54,35 +63,49 @@ function dibujarPrendas() {
     return;
   }
 
-  rejillaPrendas.innerHTML = prendasVisibles.map((prenda) => `
+  rejillaPrendas.innerHTML = prendasVisibles.map((prenda) => {
+    const stock = Number.isSafeInteger(prenda.stock) ? Math.max(0, prenda.stock) : 1;
+    return `
     <article class="group flex cursor-pointer flex-col overflow-hidden rounded-xl bg-surface shadow-tarjeta transition hover:-translate-y-1 hover:shadow-suave" data-codigo-prenda="${escaparHTML(prenda.codigo)}" tabindex="0" role="button" aria-label="Ver ${escaparHTML(prenda.nombre)}">
       <div class="relative aspect-[3/4] overflow-hidden bg-surface-container">
         <img src="${escaparHTML(prenda.imagenes[0])}" alt="${escaparHTML(prenda.nombre)}" loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         <span class="absolute left-3 top-3 rounded-full ${prenda.etiqueta === 'Nuevo' ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-surface/90 text-primary'} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">${escaparHTML(prenda.etiqueta)}</span>
+        ${stock === 0 ? '<span class="absolute right-3 top-3 rounded-full bg-error px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white">Agotada</span>' : ''}
         <span class="absolute bottom-3 right-3 rounded-full bg-surface/90 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary">${prenda.imagenes.length} fotos</span>
       </div>
       <div class="flex flex-1 flex-col justify-between p-3 sm:p-4 md:p-5">
         <div>
-          <div class="mb-2 flex flex-wrap items-center justify-between gap-1 text-[8px] font-semibold uppercase tracking-[0.08em] text-on-surface-variant sm:text-[10px] sm:tracking-[0.14em]">
-            <span>${escaparHTML(prenda.categoria)}</span>
+          <div class="mb-2 flex justify-end text-[8px] font-semibold uppercase tracking-[0.08em] text-on-surface-variant sm:text-[10px] sm:tracking-[0.14em]">
             <span class="text-secondary">Tallas ${escaparHTML(prenda.talles.join(', '))}</span>
           </div>
           <h3 class="mb-2 fuente-titular text-[1.05rem] leading-tight text-on-surface sm:text-[1.3rem] md:text-[1.45rem]">${escaparHTML(prenda.nombre)}</h3>
+          ${prenda.marca ? `<p class="mb-1 text-[0.68rem] font-semibold leading-snug text-primary sm:text-xs">${escaparHTML(prenda.marca)}</p>` : ''}
+          <p class="mb-2 text-[0.68rem] leading-snug text-on-surface-variant sm:text-xs">${escaparHTML(prenda.categoria)}</p>
           <p class="mb-3 fuente-titular text-[1.2rem] leading-none text-primary sm:mb-4 sm:text-[1.5rem] md:text-[1.7rem]">${formatearPrecio(prenda.precio)}</p>
         </div>
         <span class="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-md bg-surface-container-high px-2 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.1em] text-on-surface transition group-hover:bg-primary group-hover:text-on-primary sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-[0.68rem] sm:tracking-[0.13em]">
           <span class="material-symbols-outlined text-[16px]">shopping_bag</span>
-          Agregar
+          ${stock === 0 ? 'Ver prenda agotada' : `Ver prenda · ${stock} en stock`}
         </span>
       </div>
     </article>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function abrirDetallePrenda(codigoPrenda) {
   // Abre la ficha con galería de fotos y opciones de compra de la prenda seleccionada.
   prendaSeleccionada = prendas.find((prenda) => prenda.codigo === codigoPrenda);
   if (!prendaSeleccionada) return;
+  const talleUnico = prendaSeleccionada.talles.length === 1;
+  const colorUnico = prendaSeleccionada.colores.length === 1;
+  const stock = Number.isSafeInteger(prendaSeleccionada.stock) ? Math.max(0, prendaSeleccionada.stock) : 1;
+  const cantidadEnBolsa = bolsa
+    .filter((articulo) => articulo.codigo === prendaSeleccionada.codigo)
+    .reduce((total, articulo) => total + articulo.cantidad, 0);
+  const cantidadRestante = Math.max(0, stock - cantidadEnBolsa);
+  const agotada = stock === 0;
+  const sinUnidadesRestantes = cantidadRestante === 0;
   contenidoDialogoPrenda.innerHTML = `
     <div class="relative grid md:grid-cols-2">
       <button type="button" data-cerrar-prenda aria-label="Cerrar detalles" class="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-surface/90 shadow hover:bg-white">
@@ -102,22 +125,32 @@ function abrirDetallePrenda(codigoPrenda) {
         <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">${escaparHTML(prendaSeleccionada.categoria)}</p>
         <h2 class="mt-2 fuente-titular text-3xl leading-tight sm:text-4xl">${escaparHTML(prendaSeleccionada.nombre)}</h2>
         <p class="mt-3 fuente-titular text-3xl text-primary">${formatearPrecio(prendaSeleccionada.precio)}</p>
-        <p class="mt-2 text-sm leading-6 text-on-surface-variant">Selecciona el talle, color y cantidad que prefieras para agregarlo a tu bolsa.</p>
-        <label for="talle-prenda" class="mb-2 mt-6 text-xs font-semibold uppercase tracking-[0.14em]">Talle</label>
-        <select id="talle-prenda" name="talle" required class="min-h-12 rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none">
-          <option value="" disabled selected>Selecciona un talle</option>
-          ${prendaSeleccionada.talles.map((talle) => `<option value="${escaparHTML(talle)}">${escaparHTML(talle)}</option>`).join('')}
-        </select>
-        <label for="color-prenda" class="mb-2 mt-5 text-xs font-semibold uppercase tracking-[0.14em]">Color</label>
-        <select id="color-prenda" name="color" required class="min-h-12 rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none">
-          <option value="" disabled selected>Selecciona un color</option>
-          ${prendaSeleccionada.colores.map((color) => `<option value="${escaparHTML(color)}">${escaparHTML(color)}</option>`).join('')}
-        </select>
-        <label for="cantidad-prenda" class="mb-2 mt-5 text-xs font-semibold uppercase tracking-[0.14em]">Cantidad</label>
-        <input id="cantidad-prenda" name="cantidad" type="number" min="1" max="20" value="1" required class="min-h-12 w-28 rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none" />
-        <button type="submit" class="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-on-primary transition hover:bg-primary-container hover:text-on-primary-container">
-          <span class="material-symbols-outlined">shopping_bag</span>
-          Agregar
+        <p class="mt-2 text-sm leading-6 text-on-surface-variant">Elegí el talle y el color disponibles para esta prenda.</p>
+        <div class="mt-6">
+          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.14em]">Talle</p>
+          ${talleUnico
+            ? `<p class="text-sm">${escaparHTML(prendaSeleccionada.talles[0])}</p><input type="hidden" name="talle" value="${escaparHTML(prendaSeleccionada.talles[0])}" />`
+            : `<select id="talle-prenda" name="talle" required class="min-h-12 w-full rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none"><option value="" disabled selected>Selecciona un talle</option>${prendaSeleccionada.talles.map((talle) => `<option value="${escaparHTML(talle)}">${escaparHTML(talle)}</option>`).join('')}</select>`}
+        </div>
+        <div class="mt-5">
+          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.14em]">Color</p>
+          ${colorUnico
+            ? `<p class="text-sm">${escaparHTML(prendaSeleccionada.colores[0])}</p><input type="hidden" name="color" value="${escaparHTML(prendaSeleccionada.colores[0])}" />`
+            : `<select id="color-prenda" name="color" required class="min-h-12 w-full rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none"><option value="" disabled selected>Selecciona un color</option>${prendaSeleccionada.colores.map((color) => `<option value="${escaparHTML(color)}">${escaparHTML(color)}</option>`).join('')}</select>`}
+        </div>
+        <div class="mt-5">
+          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.14em]">Cantidad</p>
+          ${cantidadRestante === 1
+            ? `<p class="text-sm">1 unidad disponible</p><input type="hidden" name="cantidad" value="1" />`
+            : cantidadRestante > 1
+              ? `<input id="cantidad-prenda" name="cantidad" type="number" min="1" max="${cantidadRestante}" value="1" required inputmode="numeric" class="min-h-12 w-full rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none" />`
+              : `<p class="text-sm text-error">No quedan unidades disponibles.</p>`}
+          <p class="mt-2 text-xs text-on-surface-variant">Stock disponible: ${cantidadRestante}</p>
+        </div>
+        <p id="estado-agregar-bolsa" class="mt-3 ${agotada || (cantidadEnBolsa > 0 && sinUnidadesRestantes) ? '' : 'hidden'} text-sm font-semibold ${agotada ? 'text-error' : 'text-secondary'}" role="status">${agotada ? 'Esta prenda está agotada.' : 'Ya agregaste todo el stock disponible a tu bolsa.'}</p>
+        <button type="submit" ${sinUnidadesRestantes ? 'disabled' : ''} class="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-on-primary transition enabled:hover:bg-primary-container enabled:hover:text-on-primary-container disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-on-surface-variant">
+          <span class="material-symbols-outlined">${agotada ? 'block' : 'shopping_bag'}</span>
+          ${agotada ? 'Agotada' : sinUnidadesRestantes ? 'Stock completo en tu bolsa' : 'Agregar a la bolsa'}
         </button>
       </form>
     </div>
@@ -152,7 +185,7 @@ function dibujarBolsa() {
       <div class="min-w-0 flex-1">
         <h3 class="fuente-titular text-xl leading-tight">${escaparHTML(articulo.nombre)}</h3>
         <p class="mt-1 text-xs text-on-surface-variant">Talle ${escaparHTML(articulo.talle)} · ${escaparHTML(articulo.color)}</p>
-        <p class="mt-2 text-sm font-semibold text-primary">${formatearPrecio(articulo.precio)} · Cantidad: ${articulo.cantidad}</p>
+        <p class="mt-2 text-sm font-semibold text-primary">${formatearPrecio(articulo.precio * articulo.cantidad)} · Cantidad: ${articulo.cantidad}</p>
         <button type="button" data-quitar="${indice}" class="mt-2 text-xs text-secondary underline underline-offset-2">Quitar de la bolsa</button>
       </div>
     </article>
@@ -201,7 +234,7 @@ dialogoPrenda.addEventListener('click', (evento) => {
   }
 });
 
-// Agrega una variante (prenda, talle y color) o suma unidades a la existente.
+// Controla la cantidad solicitada contra el stock total por producto.
 dialogoPrenda.addEventListener('submit', (evento) => {
   if (evento.target.id !== 'formulario-prenda') return;
   evento.preventDefault();
@@ -209,9 +242,21 @@ dialogoPrenda.addEventListener('submit', (evento) => {
   const talle = datosFormulario.get('talle');
   const color = datosFormulario.get('color');
   const cantidad = Number(datosFormulario.get('cantidad'));
-  if (!prendaSeleccionada || !talle || !color || !Number.isInteger(cantidad) || cantidad < 1 || cantidad > 20) return;
+  const stock = Number.isSafeInteger(prendaSeleccionada?.stock) ? Math.max(0, prendaSeleccionada.stock) : 1;
+  const cantidadEnBolsa = bolsa
+    .filter((articulo) => articulo.codigo === prendaSeleccionada?.codigo)
+    .reduce((total, articulo) => total + articulo.cantidad, 0);
+  if (!prendaSeleccionada || stock === 0 || !talle || !color || !Number.isSafeInteger(cantidad) || cantidad < 1) return;
+  if (cantidad > stock - cantidadEnBolsa) {
+    const estadoAgregar = evento.target.querySelector('#estado-agregar-bolsa');
+    estadoAgregar.textContent = 'La cantidad supera el stock disponible.';
+    estadoAgregar.classList.remove('hidden');
+    return;
+  }
 
-  const articuloExistente = bolsa.find((articulo) => articulo.codigo === prendaSeleccionada.codigo && articulo.talle === talle && articulo.color === color);
+  const articuloExistente = bolsa.find((articulo) =>
+    articulo.codigo === prendaSeleccionada.codigo && articulo.talle === talle && articulo.color === color
+  );
   if (articuloExistente) articuloExistente.cantidad += cantidad;
   else bolsa.push({
     codigo: prendaSeleccionada.codigo,
@@ -254,25 +299,6 @@ dialogoBolsa.addEventListener('click', (evento) => {
     const ventanaWhatsApp = window.open(enlaceWhatsApp, '_blank');
     if (ventanaWhatsApp) ventanaWhatsApp.opener = null;
     estadoPedido.textContent = 'Abrimos WhatsApp con tu pedido redactado. Revísalo y pulsa enviar.';
-  }
-});
-
-// En pantallas pequeñas el menú se despliega debajo del encabezado.
-const botonMenuMovil = document.querySelector('#boton-menu-movil');
-const navegacionMovil = document.querySelector('#navegacion-movil');
-botonMenuMovil.addEventListener('click', () => {
-  const menuExpandido = botonMenuMovil.getAttribute('aria-expanded') === 'true';
-  botonMenuMovil.setAttribute('aria-expanded', String(!menuExpandido));
-  botonMenuMovil.setAttribute('aria-label', menuExpandido ? 'Abrir menú' : 'Cerrar menú');
-  botonMenuMovil.querySelector('span').textContent = menuExpandido ? 'menu' : 'close';
-  navegacionMovil.classList.toggle('hidden', menuExpandido);
-});
-navegacionMovil.addEventListener('click', (evento) => {
-  if (evento.target.closest('a')) {
-    navegacionMovil.classList.add('hidden');
-    botonMenuMovil.setAttribute('aria-expanded', 'false');
-    botonMenuMovil.setAttribute('aria-label', 'Abrir menú');
-    botonMenuMovil.querySelector('span').textContent = 'menu';
   }
 });
 
