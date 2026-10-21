@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Acceso de administración de Frané Boutique." />
+    <title>Administracion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="tailwind.generated.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="pagina-login">
+    <main class="login-contenedor">
+      <section class="login-panel" aria-labelledby="titulo-login">
+        <h1 id="titulo-login" class="login-titulo">Panel de administración</h1>
+        <form id="formulario-login" class="login-formulario">
+          <div class="login-campo">
+            <label for="correo">Correo electrónico</label>
+            <input
+              id="correo"
+              name="correo"
+              type="email"
+              autocomplete="username"
+              required
+              placeholder="nombre@ejemplo.com"
+            />
+          </div>
+          <div class="login-campo">
+            <label for="contrasena">Contraseña</label>
+            <input
+              id="contrasena"
+              name="contrasena"
+              type="password"
+              autocomplete="current-password"
+              required
+              placeholder="Ingresa tu contraseña"
+            />
+          </div>
+          <button type="submit" class="login-boton">Iniciar sesión</button>
+          <p id="mensaje-login" class="login-mensaje" role="alert" hidden></p>
+        </form>
+      </section>
+      </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script src="login.js" defer></script>
+  </body>
+</html>

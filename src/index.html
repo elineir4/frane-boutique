@@ -11,7 +11,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link
@@ -22,129 +26,71 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="bg-surface text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container">
-    <!-- Encabezado fijo: navegación completa en escritorio y menú desplegable en móvil. -->
-    <header class="fixed top-0 z-50 w-full bg-surface/90 backdrop-blur-md shadow-suave">
-      <div class="contenedor-seccion flex h-20 items-center justify-between gap-4 md:gap-6">
-        <div class="flex items-center gap-3">
-          <a href="#" class="group flex items-center gap-2">
-            <span class="fuente-titular text-[1.8rem] font-normal tracking-wide text-on-surface group-hover:text-primary transition-colors">Frané</span>
-            <span class="fuente-cuerpo text-[0.7rem] font-semibold tracking-[0.26em] uppercase text-primary">Boutique</span>
-          </a>
-        </div>
-
-        <nav id="navegacion-escritorio" class="hidden xl:flex items-center gap-8 text-sm text-on-surface-variant">
-          <a href="#coleccion" class="hover:text-primary transition-colors">Prendas Disponibles</a>
-          <a href="#como-comprar" class="hover:text-primary transition-colors">Cómo Comprar</a>
-          <a href="https://www.instagram.com/frane.boutiquecl/" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">Conecta conmigo</a>
-        </nav>
-
-        <div class="flex items-center gap-2 sm:gap-3">
-          <button id="boton-menu-movil" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="navegacion-movil" class="flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition hover:text-primary xl:hidden">
-            <span class="material-symbols-outlined text-2xl">menu</span>
-          </button>
-          <a href="#coleccion" class="hidden sm:inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-on-primary transition hover:bg-primary-container hover:text-on-primary-container shadow-suave">
-            Ver Catálogo
-          </a>
-          <button id="boton-abrir-bolsa" type="button" aria-label="Abrir bolsa de compras, 0 productos" class="relative flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition hover:text-primary">
-            <span class="material-symbols-outlined text-2xl">shopping_bag</span>
-            <span id="contador-bolsa" class="absolute -right-1 -top-1 hidden h-4 min-w-4 items-center justify-center rounded-full bg-secondary px-1 text-[9px] font-bold text-on-secondary">0</span>
-          </button>
-        </div>
-      </div>
-      <nav id="navegacion-movil" class="hidden border-t border-primary/10 bg-surface px-5 py-4 shadow-suave xl:hidden">
-        <div class="mx-auto flex max-w-7xl flex-col gap-1 text-sm text-on-surface-variant">
-          <a href="#coleccion" class="rounded-lg px-3 py-3 hover:bg-surface-container">Prendas disponibles</a>
-          <a href="#como-comprar" class="rounded-lg px-3 py-3 hover:bg-surface-container">Cómo comprar</a>
-          <a href="https://www.instagram.com/frane.boutiquecl/" target="_blank" rel="noopener noreferrer" class="rounded-lg px-3 py-3 hover:bg-surface-container">Conecta conmigo</a>
-        </div>
-      </nav>
-    </header>
-
-    <main class="w-full bg-surface pt-20">
-      <!-- Portada editorial principal. -->
+    <main class="w-full bg-surface">
       <section class="relative w-full overflow-hidden bg-surface">
-        <div class="portada-editorial relative flex h-[560px] flex-col justify-between p-4 md:h-[700px] md:p-8 md:px-16">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#201a19]/70 via-[#201a19]/20 to-[#201a19]/40"></div>
-          <div class="relative z-10 flex w-full items-center justify-end"></div>
-
-          <div class="relative z-10 mt-auto flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div class="max-w-none">
-              <p class="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-primary-fixed md:text-sm">Tu closet soñado está aquí</p>
-              <h1 class="fuente-titular text-[2.4rem] leading-none tracking-[-0.02em] uppercase text-surface md:text-[3.8rem]">
-                Viste tu <span class="fuente-titular italic font-normal text-secondary-fixed">esencia</span> &amp; estilo.
-              </h1>
-            </div>
-
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <a href="#coleccion" class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-on-primary transition hover:bg-primary-container hover:text-on-primary-container">
-                Explorar colección <span class="material-symbols-outlined text-base">arrow_forward</span>
-              </a>
-            </div>
+        <header class="hero-navegacion absolute inset-x-0 top-0 z-20">
+          <div class="hero-barra contenedor-seccion min-h-16 py-3 md:min-h-20">
+            <nav aria-label="Navegación principal" class="hero-enlaces flex items-center justify-center gap-3 text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#3E2C23] sm:gap-6 sm:text-xs md:gap-9">
+              <a href="#coleccion" class="hero-enlace transition-colors">Prendas disponibles</a>
+              <a href="#como-comprar" class="hero-enlace transition-colors">Cómo comprar</a>
+            </nav>
+            <button id="boton-abrir-bolsa" type="button" aria-label="Abrir bolsa de compras, 0 productos" class="hero-bolsa relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors">
+              <span class="material-symbols-outlined text-2xl">shopping_bag</span>
+              <span id="contador-bolsa" class="absolute -right-1 -top-1 hidden h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-on-primary">0</span>
+            </button>
           </div>
+        </header>
+        <div class="portada-editorial relative flex min-h-[480px] items-center justify-center px-5 py-24 sm:min-h-[520px] md:min-h-[min(660px,48vw)] md:px-10">
+          <h1 class="hero-marca flex items-baseline justify-center gap-[0.16em] text-center">
+            <span class="hero-marca-principal">Frané</span>
+            <span class="hero-marca-boutique">Boutique</span>
+          </h1>
         </div>
       </section>
 
-      <!-- Cuatro ventajas breves que ayudan a generar confianza antes del catálogo. -->
-      <section aria-label="Beneficios de comprar en Frané" class="bg-[#fff2ef] py-3 md:py-4">
-        <div class="contenedor-seccion grid grid-cols-3 gap-2 md:gap-3">
-          <div class="flex min-w-0 items-center justify-center gap-1.5 rounded-lg bg-white/75 p-2 sm:gap-3 sm:p-3">
-            <span class="material-symbols-outlined shrink-0 text-base text-primary sm:text-xl">local_shipping</span>
-            <div><h2 class="text-[9px] font-semibold leading-tight sm:text-xs">Envíos seguros</h2></div>
-          </div>
-          <div class="flex min-w-0 items-center justify-center gap-1.5 rounded-lg bg-white/75 p-2 sm:gap-3 sm:p-3">
-            <span class="material-symbols-outlined shrink-0 text-base text-primary sm:text-xl">support_agent</span>
-            <div><h2 class="text-[9px] font-semibold leading-tight sm:text-xs">Atención 1 a 1</h2><p class="mt-1 hidden text-[10px] leading-tight text-on-surface-variant sm:block">Asesoría personalizada</p></div>
-          </div>
-          <div class="flex min-w-0 items-center justify-center gap-1.5 rounded-lg bg-white/75 p-2 sm:gap-3 sm:p-3">
-            <span class="material-symbols-outlined shrink-0 text-base text-primary sm:text-xl">verified_user</span>
-            <div><h2 class="text-[9px] font-semibold leading-tight sm:text-xs">Pagos confiables</h2><p class="mt-1 hidden text-[10px] leading-tight text-on-surface-variant sm:block">Compra con tranquilidad</p></div>
-          </div>
-        </div>
-      </section>
 
       <!-- El catálogo se construye desde los datos definidos en app.js. -->
-      <section id="coleccion" class="w-full bg-[#fff8f6] py-14 md:py-16">
+      <section id="coleccion" class="w-full py-16 md:py-24">
         <div class="contenedor-seccion">
           <div class="mx-auto mb-8 max-w-2xl text-center">
             <p class="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-primary">Boutique femenina</p>
-            <h2 class="fuente-titular text-4xl leading-tight text-on-surface md:text-5xl">Stock disponible</h2>
-            <p class="mx-auto mt-3 max-w-xl text-xs leading-5 text-on-surface-variant md:text-sm">Cada pieza fue seleccionada especialmente para ti. Encuentra ese look que te hace sentir única, cómoda y auténtica.</p>
+            <h2 class="fuente-titular text-3xl leading-tight text-on-surface md:text-4xl">Prendas disponibles</h2>
+            <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-on-surface-variant">Cada pieza fue seleccionada especialmente para ti. Encuentra ese look que te hace sentir única, cómoda y auténtica.</p>
           </div>
 
           <div id="filtros-categoria" class="mb-8 flex flex-wrap justify-center gap-2" aria-label="Filtrar prendas por categoría">
             <button type="button" data-filtro="todos" aria-pressed="true" class="boton-categoria seleccionado">Todos</button>
-            <button type="button" data-filtro="vestidos" aria-pressed="false" class="boton-categoria">Vestidos</button>
-            <button type="button" data-filtro="conjuntos" aria-pressed="false" class="boton-categoria">Conjuntos</button>
-            <button type="button" data-filtro="accesorios" aria-pressed="false" class="boton-categoria">Accesorios</button>
+            <button type="button" data-filtro="remeras" aria-pressed="false" class="boton-categoria">Remeras</button>
+            <button type="button" data-filtro="pantalones" aria-pressed="false" class="boton-categoria">Pantalones</button>
           </div>
           <div id="rejilla-prendas" class="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 xl:grid-cols-4"></div>
         </div>
       </section>
 
       <!-- Llamado a la acción y resumen sencillo de los pasos de compra. -->
-      <section id="como-comprar" class="w-full bg-gradient-to-r from-[#fff0e8] via-[#ffe9ed] to-[#ffdfe7] py-12 md:py-16">
+      <section id="como-comprar" class="w-full py-16 md:py-24">
         <div class="contenedor-seccion">
-          <div class="mx-auto max-w-4xl text-center">
-            <p class="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-primary">Una experiencia cercana</p>
-            <h2 class="fuente-titular text-3xl leading-tight text-on-surface md:text-5xl">¿Lista para estrenar tu prenda soñada?</h2>
-            <p class="mx-auto mt-3 max-w-2xl text-xs leading-5 text-on-surface-variant md:text-sm">Cada prenda es seleccionada cuidadosamente para resaltar tu estilo. Sin apuros, con asesoría directa y una experiencia de compra sencilla, cercana y hecha especialmente para ti.</p>
-            <div class="mx-auto mt-6 grid max-w-3xl gap-2 text-left sm:grid-cols-3">
-              <div class="rounded-lg border border-white/80 bg-white/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-primary">Paso 1</p><p class="mt-1 text-xs font-semibold">Elige tu prenda favorita</p></div>
-              <div class="rounded-lg border border-white/80 bg-white/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-primary">Paso 2</p><p class="mt-1 text-xs font-semibold">Selecciona talle y color</p></div>
-              <div class="rounded-lg border border-white/80 bg-white/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-primary">Paso 3</p><p class="mt-1 text-xs font-semibold">Coordina tu pedido con Frané</p></div>
+          <div class="mx-auto max-w-5xl text-center">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-primary md:text-sm">Una experiencia cercana</p>
+            <h2 class="fuente-titular text-3xl leading-tight text-on-surface md:text-4xl">¿Lista para estrenar tu prenda soñada?</h2>
+            <p class="mx-auto mt-4 max-w-3xl text-sm leading-6 text-on-surface-variant md:text-base md:leading-7">Cada prenda es seleccionada cuidadosamente para resaltar tu estilo. Sin apuros, con asesoría directa y una experiencia de compra sencilla, cercana y hecha especialmente para ti.</p>
+            <div class="mx-auto mt-9 grid max-w-5xl gap-4 text-left sm:grid-cols-3 md:gap-6">
+              <div class="rounded-xl border border-white/80 bg-white/60 p-4 md:p-5"><p class="text-xs font-bold uppercase tracking-wider text-primary">Paso 1</p><p class="mt-2 text-sm font-semibold leading-6 md:text-base">Elige tu prenda favorita</p></div>
+              <div class="rounded-xl border border-white/80 bg-white/60 p-4 md:p-5"><p class="text-xs font-bold uppercase tracking-wider text-primary">Paso 2</p><p class="mt-2 text-sm font-semibold leading-6 md:text-base">Selecciona talle y color</p></div>
+              <div class="rounded-xl border border-white/80 bg-white/60 p-4 md:p-5"><p class="text-xs font-bold uppercase tracking-wider text-primary">Paso 3</p><p class="mt-2 text-sm font-semibold leading-6 md:text-base">Coordina tu pedido por whatsapp</p></div>
             </div>
-            <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <a href="#coleccion" class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-primary-container hover:text-on-primary-container"><span class="material-symbols-outlined text-base">shopping_bag</span>Elegir mi prenda</a>
-              <a href="https://www.instagram.com/frane.boutiquecl/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full border border-primary/30 bg-white/70 px-6 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-primary transition hover:bg-white"><span class="material-symbols-outlined text-base">photo_camera</span>Consultar por Instagram</a>
+            <div class="mt-9 flex flex-col justify-center gap-4 sm:flex-row">
+              <a href="#coleccion" class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-primary-container hover:text-on-primary-container"><span class="material-symbols-outlined text-base">shopping_bag</span>Elegir mi prenda</a>
+              <a href="https://wa.me/5493515290303" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full border border-primary/30 bg-white/70 px-6 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-primary transition hover:bg-white"><span class="material-symbols-outlined text-base">chat</span>Consultar por WhatsApp</a>
             </div>
-            <p class="mt-4 text-[10px] text-on-surface-variant">Atención personalizada · Piezas seleccionadas con amor</p>
+            <p class="mt-6 text-xs text-on-surface-variant md:text-sm">Atención personalizada · Piezas seleccionadas con amor</p>
           </div>
         </div>
       </section>
     </main>
 
     <!-- Pie del sitio: identidad de la tienda, atención, envíos y contacto por Instagram. -->
-    <footer class="bg-[#fff8f6] text-on-surface">
+    <footer class="pie-tienda text-on-surface">
       <div class="contenedor-seccion grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12 lg:py-14">
         <div>
           <a href="#" class="fuente-titular text-4xl tracking-wide">Frané</a>
@@ -154,7 +100,7 @@
         <div>
           <h2 class="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-primary">Atención &amp; envíos</h2>
           <ul class="space-y-3 text-sm text-on-surface-variant">
-            <li><a href="https://ig.me/m/frane.boutiquecl" target="_blank" rel="noopener noreferrer" class="hover:text-primary">Atención directa con la creadora por Instagram</a></li>
+            <li><a href="https://ig.me/m/frane.boutique.cl" target="_blank" rel="noopener noreferrer" class="hover:text-primary">Atención directa con la creadora por Whatsapp</a></li>
             <li><a href="#como-comprar" class="hover:text-primary">Guía de tallas y cambios amigables</a></li>
             <li class="flex items-center gap-2"><span class="material-symbols-outlined text-base">local_shipping</span>Envíos seguros</li>
           </ul>
@@ -162,8 +108,8 @@
         <div>
           <h2 class="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-primary">Conecta conmigo</h2>
           <p class="text-sm leading-6 text-on-surface-variant">Sigue nuestro lookbook diario y lanzamientos exclusivos en redes.</p>
-          <a href="https://www.instagram.com/frane.boutiquecl/" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm text-primary underline decoration-primary/40 underline-offset-4 hover:text-secondary">
-            <span class="material-symbols-outlined">photo_camera</span>@frane.boutiquecl
+          <a href="https://www.instagram.com/frane.boutique.cl/" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm text-primary underline decoration-primary/40 underline-offset-4 hover:text-secondary">
+            <span class="material-symbols-outlined">photo_camera</span>@frane.boutique.cl
           </a>
         </div>
       </div>
@@ -197,6 +143,9 @@
     </dialog>
     <!-- La lógica de catálogo, galería, bolsa y navegación está en su propio archivo. -->
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <script src="catalogo.js" defer></script>
     <script src="app.js" defer></script>
   </body>
 </html>

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "npm run build:copy && npm run build:css",
-    "build:copy": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});['index.html','app.js','styles.css'].forEach(file=>fs.copyFileSync('src/'+file,'dist/'+file))\"",
+    "build:copy": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});fs.mkdirSync('dist/source',{recursive:true});['index.html','app.js','catalogo.js','styles.css','login.html','login.js','admin.html','admin.js','admin.css','supabase.js'].forEach(file=>fs.copyFileSync('src/'+file,'dist/'+file));fs.copyFileSync('src/source/herofranedefinitivo.jpg','dist/source/herofranedefinitivo.jpg')\"",
     "build:css": "tailwindcss -i ./src/tailwind.input.css -o ./dist/tailwind.generated.css --minify",
     "dev": "npm run build && tailwindcss -i ./src/tailwind.input.css -o ./dist/tailwind.generated.css --minify --watch"
   },

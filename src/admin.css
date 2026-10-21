@@ -1,0 +1,36 @@
+.admin-campo {
+  display: grid;
+  min-width: 0;
+  gap: 0.4rem;
+}
+.admin-campo label {
+  color: #4A3426;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.admin-campo input,
+.admin-campo select,
+.admin-campo textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #D4C1AA;
+  border-radius: 0.45rem;
+  outline: none;
+  background: #FFFAF4;
+  color: #4A3426;
+  font: inherit;
+  font-size: 0.85rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.admin-campo textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+.admin-campo input:focus,
+.admin-campo select:focus,
+.admin-campo textarea:focus {
+  border-color: #795548;
+  box-shadow: 0 0 0 3px rgba(121, 85, 72, 0.12);
+}

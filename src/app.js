@@ -1,66 +1,4 @@
-// Catálogo de ejemplo: aquí se editan precios, talles, colores y fotos de cada prenda.
-const prendas = [
-  {
-    codigo: 'aurora',
-    nombre: 'Vestido Aurora Satin',
-    categoria: 'Vestido de seda',
-    grupo: 'vestidos',
-    precio: 149000,
-    etiqueta: 'Nuevo',
-    talles: ['S', 'M', 'L'],
-    colores: ['Champagne', 'Rosa blush', 'Negro'],
-    imagenes: [
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=900&q=85'
-    ]
-  },
-  {
-    codigo: 'blazer',
-    nombre: 'Blazer Mon Amour Blush',
-    categoria: 'Sastrería chic',
-    grupo: 'conjuntos',
-    precio: 185000,
-    etiqueta: 'Nuevo',
-    talles: ['XS', 'S', 'M'],
-    colores: ['Rosa blush', 'Marfil', 'Camel'],
-    imagenes: [
-      'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1548624149-f0b3d6f3b2fa?auto=format&fit=crop&w=900&q=85'
-    ]
-  },
-  {
-    codigo: 'constance',
-    nombre: 'Vestido Midi Constance',
-    categoria: 'Vestido romántico',
-    grupo: 'vestidos',
-    precio: 165000,
-    etiqueta: 'Favorito',
-    talles: ['S', 'M'],
-    colores: ['Marfil', 'Rosa palo', 'Verde salvia'],
-    imagenes: [
-      'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=85'
-    ]
-  },
-  {
-    codigo: 'soleil',
-    nombre: 'Sandalias Soleil Champagne',
-    categoria: 'Calzado & joyería',
-    grupo: 'accesorios',
-    precio: 129000,
-    etiqueta: 'Últimas piezas',
-    talles: ['36', '37', '38', '39'],
-    colores: ['Champagne', 'Dorado'],
-    imagenes: [
-      'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1515347619252-60a4bf4fff4f?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1562273138-f46be4ebdf33?auto=format&fit=crop&w=900&q=85'
-    ]
-  }
-];
+let prendas = [];
 
 // Referencias a las zonas de la página que actualiza el catálogo.
 const rejillaPrendas = document.querySelector('#rejilla-prendas');
@@ -72,6 +10,7 @@ const pieBolsa = document.querySelector('#pie-bolsa');
 const contadorBolsa = document.querySelector('#contador-bolsa');
 // La bolsa se mantiene durante la visita mientras la persona agrega o quita artículos.
 const bolsa = [];
+const numeroWhatsApp = '5493515290303';
 let prendaSeleccionada = null;
 let categoriaSeleccionada = 'todos';
 
@@ -82,26 +21,53 @@ const formatearPrecio = (precio) => new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0
 }).format(precio);
 
+function normalizarCategoriaPrenda(valor) {
+  const palabras = String(valor ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .match(/[a-z0-9]+/g) ?? [];
+
+  if (palabras.some((palabra) => ['remera', 'remeras', 'camiseta', 'camisetas'].includes(palabra))) {
+    return 'remeras';
+  }
+  if (palabras.some((palabra) => ['pantalon', 'pantalones'].includes(palabra))) {
+    return 'pantalones';
+  }
+  return null;
+}
+
+function perteneceACategoriaPrenda(prenda, categoria) {
+  if (categoria === 'todos') return true;
+  return normalizarCategoriaPrenda(prenda.grupo) === categoria
+    || normalizarCategoriaPrenda(prenda.categoria) === categoria;
+}
+
 function dibujarPrendas() {
   // Las tarjetas se generan desde los datos para que agregar prendas sea sencillo.
-  const prendasVisibles = categoriaSeleccionada === 'todos'
-    ? prendas
-    : prendas.filter((prenda) => prenda.grupo === categoriaSeleccionada);
+  const prendasVisibles = prendas.filter((prenda) =>
+    perteneceACategoriaPrenda(prenda, categoriaSeleccionada)
+  );
+
+  if (prendasVisibles.length === 0) {
+    rejillaPrendas.innerHTML = '<p class="col-span-full py-10 text-center text-sm text-on-surface-variant">No hay prendas en esta categoría por ahora.</p>';
+    return;
+  }
 
   rejillaPrendas.innerHTML = prendasVisibles.map((prenda) => `
-    <article class="group flex cursor-pointer flex-col overflow-hidden rounded-xl bg-surface shadow-tarjeta transition hover:-translate-y-1 hover:shadow-suave" data-codigo-prenda="${prenda.codigo}" tabindex="0" role="button" aria-label="Ver ${prenda.nombre}">
+    <article class="group flex cursor-pointer flex-col overflow-hidden rounded-xl bg-surface shadow-tarjeta transition hover:-translate-y-1 hover:shadow-suave" data-codigo-prenda="${escaparHTML(prenda.codigo)}" tabindex="0" role="button" aria-label="Ver ${escaparHTML(prenda.nombre)}">
       <div class="relative aspect-[3/4] overflow-hidden bg-surface-container">
-        <img src="${prenda.imagenes[0]}" alt="${prenda.nombre}" loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-        <span class="absolute left-3 top-3 rounded-full ${prenda.etiqueta === 'Nuevo' ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-surface/90 text-primary'} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">${prenda.etiqueta}</span>
+        <img src="${escaparHTML(prenda.imagenes[0])}" alt="${escaparHTML(prenda.nombre)}" loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <span class="absolute left-3 top-3 rounded-full ${prenda.etiqueta === 'Nuevo' ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-surface/90 text-primary'} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">${escaparHTML(prenda.etiqueta)}</span>
         <span class="absolute bottom-3 right-3 rounded-full bg-surface/90 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-primary">${prenda.imagenes.length} fotos</span>
       </div>
       <div class="flex flex-1 flex-col justify-between p-3 sm:p-4 md:p-5">
         <div>
           <div class="mb-2 flex flex-wrap items-center justify-between gap-1 text-[8px] font-semibold uppercase tracking-[0.08em] text-on-surface-variant sm:text-[10px] sm:tracking-[0.14em]">
-            <span>${prenda.categoria}</span>
-            <span class="text-secondary">${prenda.talles.length === 4 && prenda.codigo === 'soleil' ? 'Tallas 36–39' : `Tallas ${prenda.talles.join(', ')}`}</span>
+            <span>${escaparHTML(prenda.categoria)}</span>
+            <span class="text-secondary">Tallas ${escaparHTML(prenda.talles.join(', '))}</span>
           </div>
-          <h3 class="mb-2 fuente-titular text-[1.05rem] leading-tight text-on-surface sm:text-[1.3rem] md:text-[1.45rem]">${prenda.nombre}</h3>
+          <h3 class="mb-2 fuente-titular text-[1.05rem] leading-tight text-on-surface sm:text-[1.3rem] md:text-[1.45rem]">${escaparHTML(prenda.nombre)}</h3>
           <p class="mb-3 fuente-titular text-[1.2rem] leading-none text-primary sm:mb-4 sm:text-[1.5rem] md:text-[1.7rem]">${formatearPrecio(prenda.precio)}</p>
         </div>
         <span class="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-md bg-surface-container-high px-2 py-2 text-[0.58rem] font-semibold uppercase tracking-[0.1em] text-on-surface transition group-hover:bg-primary group-hover:text-on-primary sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-[0.68rem] sm:tracking-[0.13em]">
@@ -123,29 +89,29 @@ function abrirDetallePrenda(codigoPrenda) {
         <span class="material-symbols-outlined">close</span>
       </button>
       <div class="bg-surface-container p-3 sm:p-5">
-        <img id="imagen-principal-prenda" src="${prendaSeleccionada.imagenes[0]}" alt="${prendaSeleccionada.nombre}" class="aspect-[4/5] w-full rounded-xl object-cover" />
+        <img id="imagen-principal-prenda" src="${escaparHTML(prendaSeleccionada.imagenes[0])}" alt="${escaparHTML(prendaSeleccionada.nombre)}" class="aspect-[4/5] w-full rounded-xl object-cover" />
         <div class="mt-3 grid grid-cols-3 gap-2">
           ${prendaSeleccionada.imagenes.map((imagen, indice) => `
-            <button type="button" data-imagen-galeria="${imagen}" aria-label="Ver foto ${indice + 1}" class="overflow-hidden rounded-lg border-2 ${indice === 0 ? 'border-primary' : 'border-transparent'} focus:border-primary">
-              <img src="${imagen}" alt="" class="aspect-square w-full object-cover" />
+            <button type="button" data-imagen-galeria="${escaparHTML(imagen)}" aria-label="Ver foto ${indice + 1}" class="overflow-hidden rounded-lg border-2 ${indice === 0 ? 'border-primary' : 'border-transparent'} focus:border-primary">
+              <img src="${escaparHTML(imagen)}" alt="" class="aspect-square w-full object-cover" />
             </button>
           `).join('')}
         </div>
       </div>
       <form id="formulario-prenda" class="flex flex-col p-5 sm:p-7 md:p-8">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">${prendaSeleccionada.categoria}</p>
-        <h2 class="mt-2 fuente-titular text-3xl leading-tight sm:text-4xl">${prendaSeleccionada.nombre}</h2>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">${escaparHTML(prendaSeleccionada.categoria)}</p>
+        <h2 class="mt-2 fuente-titular text-3xl leading-tight sm:text-4xl">${escaparHTML(prendaSeleccionada.nombre)}</h2>
         <p class="mt-3 fuente-titular text-3xl text-primary">${formatearPrecio(prendaSeleccionada.precio)}</p>
         <p class="mt-2 text-sm leading-6 text-on-surface-variant">Selecciona el talle, color y cantidad que prefieras para agregarlo a tu bolsa.</p>
         <label for="talle-prenda" class="mb-2 mt-6 text-xs font-semibold uppercase tracking-[0.14em]">Talle</label>
         <select id="talle-prenda" name="talle" required class="min-h-12 rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none">
           <option value="" disabled selected>Selecciona un talle</option>
-          ${prendaSeleccionada.talles.map((talle) => `<option value="${talle}">${talle}</option>`).join('')}
+          ${prendaSeleccionada.talles.map((talle) => `<option value="${escaparHTML(talle)}">${escaparHTML(talle)}</option>`).join('')}
         </select>
         <label for="color-prenda" class="mb-2 mt-5 text-xs font-semibold uppercase tracking-[0.14em]">Color</label>
         <select id="color-prenda" name="color" required class="min-h-12 rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none">
           <option value="" disabled selected>Selecciona un color</option>
-          ${prendaSeleccionada.colores.map((color) => `<option value="${color}">${color}</option>`).join('')}
+          ${prendaSeleccionada.colores.map((color) => `<option value="${escaparHTML(color)}">${escaparHTML(color)}</option>`).join('')}
         </select>
         <label for="cantidad-prenda" class="mb-2 mt-5 text-xs font-semibold uppercase tracking-[0.14em]">Cantidad</label>
         <input id="cantidad-prenda" name="cantidad" type="number" min="1" max="20" value="1" required class="min-h-12 w-28 rounded-lg border border-primary/20 bg-white px-3 text-sm focus:border-primary focus:outline-none" />
@@ -182,10 +148,10 @@ function dibujarBolsa() {
 
   elementosBolsa.innerHTML = bolsa.map((articulo, indice) => `
     <article class="flex gap-4 rounded-xl bg-white p-3 shadow-sm">
-      <img src="${articulo.imagen}" alt="${articulo.nombre}" class="h-28 w-20 rounded-lg object-cover" />
+      <img src="${escaparHTML(articulo.imagen)}" alt="${escaparHTML(articulo.nombre)}" class="h-28 w-20 rounded-lg object-cover" />
       <div class="min-w-0 flex-1">
-        <h3 class="fuente-titular text-xl leading-tight">${articulo.nombre}</h3>
-        <p class="mt-1 text-xs text-on-surface-variant">Talle ${articulo.talle} · ${articulo.color}</p>
+        <h3 class="fuente-titular text-xl leading-tight">${escaparHTML(articulo.nombre)}</h3>
+        <p class="mt-1 text-xs text-on-surface-variant">Talle ${escaparHTML(articulo.talle)} · ${escaparHTML(articulo.color)}</p>
         <p class="mt-2 text-sm font-semibold text-primary">${formatearPrecio(articulo.precio)} · Cantidad: ${articulo.cantidad}</p>
         <button type="button" data-quitar="${indice}" class="mt-2 text-xs text-secondary underline underline-offset-2">Quitar de la bolsa</button>
       </div>
@@ -198,18 +164,14 @@ function dibujarBolsa() {
       <span class="text-sm text-on-surface-variant">Total estimado</span>
       <strong class="fuente-titular text-2xl text-primary">${formatearPrecio(totalPedido)}</strong>
     </div>
-    <p class="mb-4 text-xs leading-5 text-on-surface-variant">Al continuar, se copiará el detalle del pedido y se abrirá el chat de Instagram de Frané para que lo envíes.</p>
-    <button id="boton-enviar-instagram" type="button" class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-primary-container hover:text-on-primary-container">
-      <span class="material-symbols-outlined">photo_camera</span>
-      Enviar pedido por Instagram
+    <p class="mb-4 text-xs leading-5 text-on-surface-variant">Al continuar, se abrirá WhatsApp con tu pedido redactado para que lo revises y lo envíes.</p>
+    <button id="boton-enviar-whatsapp" type="button" class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-primary-container hover:text-on-primary-container">
+      <span class="material-symbols-outlined">chat</span>
+      Enviar pedido por WhatsApp
     </button>
-    <div id="aviso-pedido-instagram" class="mt-4 hidden rounded-xl bg-surface-container-low p-4" aria-live="polite">
-      <p id="estado-pedido-instagram" class="mb-3 text-sm leading-6 text-on-surface-variant"></p>
-      <textarea id="texto-pedido-instagram" readonly rows="6" aria-label="Detalle del pedido para copiar" class="w-full rounded-lg border border-primary/20 bg-white p-3 text-xs leading-5"></textarea>
-      <div class="mt-3 flex flex-wrap items-center gap-3">
-        <button id="boton-copiar-pedido" type="button" class="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white">Copiar pedido</button>
-        <a href="https://ig.me/m/frane.boutiquecl" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-primary underline underline-offset-2">Abrir chat de Instagram</a>
-      </div>
+    <div id="aviso-pedido-whatsapp" class="mt-4 hidden rounded-xl bg-surface-container-low p-4" aria-live="polite">
+      <p id="estado-pedido-whatsapp" class="mb-3 text-sm leading-6 text-on-surface-variant"></p>
+      <a id="link-whatsapp-pedido" href="https://wa.me/${numeroWhatsApp}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-primary underline underline-offset-2">Abrir WhatsApp con el pedido</a>
     </div>
   `;
 }
@@ -268,8 +230,8 @@ document.querySelector('#boton-abrir-bolsa').addEventListener('click', () => {
   dibujarBolsa();
   dialogoBolsa.showModal();
 });
-// Gestiona las cantidades, la eliminación y el envío del pedido a Instagram.
-dialogoBolsa.addEventListener('click', async (evento) => {
+// Gestiona las cantidades, la eliminación y el envío del pedido a WhatsApp.
+dialogoBolsa.addEventListener('click', (evento) => {
   if (evento.target.closest('[data-cerrar-bolsa]')) dialogoBolsa.close();
 
   const botonQuitar = evento.target.closest('[data-quitar]');
@@ -278,37 +240,20 @@ dialogoBolsa.addEventListener('click', async (evento) => {
     dibujarBolsa();
   }
 
-  if (evento.target.closest('#boton-enviar-instagram')) {
+  if (evento.target.closest('#boton-enviar-whatsapp')) {
     const detallePedido = bolsa.map((articulo) =>
       `🌷 ${articulo.nombre} (${articulo.talle}, ${articulo.color}) (x${articulo.cantidad}) - ${formatearPrecio(articulo.precio * articulo.cantidad)}`
     );
     const totalPedido = bolsa.reduce((subtotal, articulo) => subtotal + articulo.precio * articulo.cantidad, 0);
     const mensaje = `🌸 Hola Frané Boutique! 🌸\nQuiero hacer este pedido:\n\n${detallePedido.join('\n')}\n\n💐 Total: ${formatearPrecio(totalPedido)}\n\nGracias! 🌼`;
-    const avisoPedido = document.querySelector('#aviso-pedido-instagram');
-    const estadoPedido = document.querySelector('#estado-pedido-instagram');
-    document.querySelector('#texto-pedido-instagram').value = mensaje;
+    const avisoPedido = document.querySelector('#aviso-pedido-whatsapp');
+    const estadoPedido = document.querySelector('#estado-pedido-whatsapp');
     avisoPedido.classList.remove('hidden');
-    const ventanaInstagram = window.open('https://ig.me/m/frane.boutiquecl', '_blank');
-    if (ventanaInstagram) ventanaInstagram.opener = null;
-
-    try {
-      await navigator.clipboard.writeText(mensaje);
-      estadoPedido.textContent = 'Copiamos tu pedido. Pégalo en el chat de Instagram para enviarlo.';
-    } catch (errorDeCopia) {
-      estadoPedido.textContent = 'No pudimos copiar el pedido automáticamente. Usa el botón «Copiar pedido» y pégalo en el chat de Instagram.';
-    }
-  }
-
-  if (evento.target.closest('#boton-copiar-pedido')) {
-    const textoPedido = document.querySelector('#texto-pedido-instagram');
-    try {
-      await navigator.clipboard.writeText(textoPedido.value);
-      document.querySelector('#estado-pedido-instagram').textContent = 'Pedido copiado. Pégalo en el chat de Instagram para enviarlo.';
-    } catch (errorDeCopia) {
-      textoPedido.focus();
-      textoPedido.select();
-      document.querySelector('#estado-pedido-instagram').textContent = 'La copia automática no está disponible. El texto está seleccionado: cópialo y pégalo en Instagram.';
-    }
+    const enlaceWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    document.querySelector('#link-whatsapp-pedido').href = enlaceWhatsApp;
+    const ventanaWhatsApp = window.open(enlaceWhatsApp, '_blank');
+    if (ventanaWhatsApp) ventanaWhatsApp.opener = null;
+    estadoPedido.textContent = 'Abrimos WhatsApp con tu pedido redactado. Revísalo y pulsa enviar.';
   }
 });
 
@@ -345,5 +290,16 @@ document.querySelector('#filtros-categoria').addEventListener('click', (evento) 
   dibujarPrendas();
 });
 
-dibujarPrendas();
 dibujarBolsa();
+async function cargarProductos() {
+  rejillaPrendas.innerHTML = '<p class="col-span-full py-10 text-center text-sm text-on-surface-variant">Cargando prendas...</p>';
+  const productos = await obtenerProductos();
+  if (productos === null) {
+    rejillaPrendas.innerHTML = '<p class="col-span-full py-10 text-center text-sm text-on-surface-variant">No pudimos cargar el catálogo. Intenta recargar la página.</p>';
+    return;
+  }
+  prendas = productos;
+  dibujarPrendas();
+}
+
+cargarProductos();

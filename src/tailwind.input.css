@@ -4,10 +4,10 @@
 
 @layer utilities {
   .fuente-titular {
-    font-family: 'Bodoni Moda', serif;
+    font-family: 'Cormorant Garamond', serif;
   }
 
   .fuente-cuerpo {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Lato', sans-serif;
   }
 }
